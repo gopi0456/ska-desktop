@@ -3,11 +3,11 @@ name: Build SKA Billing EXE for Windows 7
 on:
   push:
     branches: [ main ]
-  workflow_dispatch: # Allows manual trigger from GitHub UI
+  workflow_dispatch:
 
 jobs:
   build-windows-7:
-    runs-on: windows-latest 
+    runs-on: windows-latest
     
     steps:
       - name: Checkout code
@@ -18,19 +18,19 @@ jobs:
         with:
           node-version: '18' 
 
+      # IMPORTANT: Do NOT use working-directory if files are in root.
+      # If your package.json is in the root of the repo, just run npm ci directly.
       - name: Install Dependencies
         run: npm ci
-        working-directory: ./ska-desktop
 
       - name: Build Electron App for Windows 7 (IA32)
+        # Ensure this command matches your package.json script exactly
         run: npm run build:win7
-        working-directory: ./ska-desktop
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: SKA-Billing-Win7-Portable
-          path: ./ska-desktop/release/*.exe
+          # Look for exe in release folder from ROOT
+          path: ./release/*.exe 
           retention-days: 30
